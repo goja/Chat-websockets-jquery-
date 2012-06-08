@@ -1,0 +1,34 @@
+<html>
+<head>
+    
+</head>
+<body>
+<input type="text" id="msg"/>
+<input type="submit" value="send" onclick="send()"/><br />
+<input type="text" id="ping" />
+
+<script type="text/javascript" src="vertxbus.js"></script>
+<script type="text/javascript" src="sockjs-0.2.1.min.js"></script>
+
+<script type="text/javascript">
+
+var eb = new vertx.EventBus('http://localhost:8080/eventbus');
+
+eb.onopen = function () {
+    var handler = function (obj) {
+        document.getElementById('ping').value = obj.msg;
+    }
+    
+    eb.registerHandler('vertx.goja', handler);
+}
+
+function send() {
+    var obj = {
+        msg: document.getElementById('msg').value
+    }
+    eb.send('vertx.goja', obj);
+}
+
+</script>   
+</body>
+</html>
