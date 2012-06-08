@@ -3,7 +3,8 @@
     
 </head>
 <body>
-<textarea id="messages" rows="8" cols="40"></textarea><br />
+<input type="text" id="user" size="30" /><br />
+<textarea id="messages" rows="8" cols="40" readonly></textarea><br />
 <input type="text" id="msg" size="50"/>
 
 <script type="text/javascript" src="jquery-1.7.min.js"></script>
@@ -14,6 +15,7 @@
 <script type="text/javascript">
 
 var eb = new vertx.EventBus('http://localhost:8081/eventbus');
+var user;
 
 $(function () {
     eb.onopen = function () {
@@ -27,10 +29,14 @@ $(function () {
 
 $('#msg').keypress(function (event) {
     if(event.keyCode == 13) {
-        var obj = {message: $('#msg').val() + '<br>'}
+        var obj = {message: user + ': ' + $('#msg').val() + '<br>'}
         eb.send('goja.chat', obj);
         $('#msg').val('');
     }
+});
+
+$('#user').change(function () {
+    user = $('#user').val();
 });
 
 </script>   
