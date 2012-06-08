@@ -7,7 +7,7 @@ var webServerConf = {
   
   permitted: [
   {
-      address: 'vertx.goja'
+      address: 'goja.chat'
   }
   ]
 };

@@ -3,31 +3,35 @@
     
 </head>
 <body>
-<input type="text" id="msg"/>
-<input type="submit" value="send" onclick="send()"/><br />
-<input type="text" id="ping" />
+<textarea id="messages" rows="8" cols="40"></textarea><br />
+<input type="text" id="msg" size="50"/>
 
+<script type="text/javascript" src="jquery-1.7.min.js"></script>
+<script type="text/javascript" src="jquery-ui-1.8.custom.min.js"></script>
 <script type="text/javascript" src="vertxbus.js"></script>
 <script type="text/javascript" src="sockjs-0.2.1.min.js"></script>
 
 <script type="text/javascript">
 
-var eb = new vertx.EventBus('http://localhost:8080/eventbus');
+var eb = new vertx.EventBus('http://localhost:8081/eventbus');
 
-eb.onopen = function () {
-    var handler = function (obj) {
-        document.getElementById('ping').value = obj.msg;
+$(function () {
+    eb.onopen = function () {
+        var handler = function (obj) {
+            $('#messages').append(obj.message);
+        }
+        
+        eb.registerHandler('goja.chat', handler);
     }
-    
-    eb.registerHandler('vertx.goja', handler);
-}
+});
 
-function send() {
-    var obj = {
-        msg: document.getElementById('msg').value
+$('#msg').keypress(function (event) {
+    if(event.keyCode == 13) {
+        var obj = {message: $('#msg').val() + '<br>'}
+        eb.send('goja.chat', obj);
+        $('#msg').val('');
     }
-    eb.send('vertx.goja', obj);
-}
+});
 
 </script>   
 </body>
