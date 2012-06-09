@@ -1,42 +1,74 @@
 <html>
 <head>
-    
+<style type="text/css">
+.modal {
+    background-color:#fff;
+    display:none;
+    width:350px;
+    padding:15px;
+    text-align:left;
+    border:1px solid #333;
+  }
+</style>
 </head>
+
 <body>
-<input type="text" id="user" size="30" /><br />
+<form id="mainForm">
 <textarea id="messages" rows="8" cols="40" readonly></textarea><br />
 <input type="text" id="msg" size="50"/>
+</form>
+
+<div class="modal" id="prompt">
+Enter username
+<form id="promptForm">
+<input id="promptInput" />
+</form>
+</div>
 
 <script type="text/javascript" src="jquery-1.7.min.js"></script>
-<script type="text/javascript" src="jquery-ui-1.8.custom.min.js"></script>
+<script type="text/javascript" src="jquery.tools.min.js"></script>
 <script type="text/javascript" src="vertxbus.js"></script>
 <script type="text/javascript" src="sockjs-0.2.1.min.js"></script>
 
 <script type="text/javascript">
 
-var eb = new vertx.EventBus('http://localhost:8081/eventbus');
 var user;
+var eb = new vertx.EventBus('http://localhost:8081/eventbus');
 
 $(function () {
     eb.onopen = function () {
         var handler = function (obj) {
             $('#messages').append(obj.message);
         }
-        
         eb.registerHandler('goja.chat', handler);
     }
-});
-
-$('#msg').keypress(function (event) {
-    if(event.keyCode == 13) {
-        var obj = {message: user + ': ' + $('#msg').val() + '<br>'}
-        eb.send('goja.chat', obj);
-        $('#msg').val('');
+    
+    if (user == undefined) {
+        $('#prompt').overlay({
+            mask: {
+                color: '#fff',
+                loadSpeed: 200,
+                opacity: 0.5
+            },
+            closeOnClick: false,
+            load: true
+        });
+        $('#promptInput').focus();
     }
 });
 
-$('#user').change(function () {
-    user = $('#user').val();
+$('#promptForm').submit(function (e) {
+    user = $('#promptInput').val();
+    $('#prompt').overlay().close();
+    $('#msg').focus();
+    return e.preventDefault();
+});
+
+$('#mainForm').submit(function (event) {
+    var obj = {message: user + ': ' + $('#msg').val() + '<br>'}
+    eb.send('goja.chat', obj);
+    $('#msg').val('');
+    return event.preventDefault();
 });
 
 </script>   
